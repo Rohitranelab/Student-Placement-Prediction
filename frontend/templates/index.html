@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = "UTF-8">
+        <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+        <title>Student Placement Prediction</title>
+        <link rel = "stylesheet" href = "{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <div class = "container">
+            <div class = "card">
+                <h1>Student Placement Prediction</h1>
+                <p class = "subtitle">Enter student details to predict placement status</p>
+                <form method = "POST">
+                    <div class = "form-grid">
+                        <!-- CGPA -->
+                        <div class = "form-group">
+                            <label for = "cgpa">CGPA</label>
+                            <input
+                                type = "number"
+                                id = "cgpa"
+                                name = "cgpa"
+                                step = "0.01"
+                                min = "0"
+                                max = "10"
+                                placeholder = "Enter CGPA"
+                                required>
+                        </div>
+
+                        <!-- Projects -->
+                        <div class = "form-group">
+                            <label for = "projects">Projects</label>
+                            <input
+                                type = "number"
+                                id = "projects"
+                                name = "projects"
+                                min = "0"
+                                placeholder = "Number of projects"
+                                required>
+                        </div>
+
+                        <!-- Communication Skills -->
+                        <div class = "form-group">
+                            <label for = "communication_skills">Communication Skills</label>
+                            <input
+                                type = "number"
+                                id = "communication_skills"
+                                name = "communication_skills"
+                                step = "0.01"
+                                min = "0"
+                                max = "10"
+                                placeholder = "Score out of 10"
+                                required>
+                        </div>
+
+                        <!-- Internship -->
+                        <div class = "form-group">
+                            <label for = "internship">Internship</label>
+                            <select
+                                id = "internship"
+                                name = "internship"
+                                required>
+                                <option value = "">Select</option>
+                                <option value = "1">Yes</option>
+                                <option value = "0">No</option>
+                            </select>
+                        </div>
+
+                        <!-- Programming Skills -->
+                        <div class = "form-group">
+                            <label for = "programming_skills">Programming Skills</label>
+                            <input
+                                type = "number"
+                                id = "programming_skills"
+                                name = "programming_skills"
+                                step = "0.01"
+                                min = "0"
+                                max = "10"
+                                placeholder = "Score out of 10"
+                                required>
+                        </div>
+
+                        <!-- Technical Skills -->
+                        <div class = "form-group">
+                            <label for = "technical_skills">Technical Skills</label>
+                            <input
+                                type = "number"
+                                id = "technical_skills"
+                                name = "technical_skills"
+                                step = "0.01"
+                                min = "0"
+                                max = "10"
+                                placeholder = "Score out of 10"
+                                required>
+                        </div>
+
+                        <!-- Certifications -->
+                        <div class = "form-group">
+                            <label for = "certifications">Certifications</label>
+                            <input
+                                type = "number"
+                                id = "certifications"
+                                name = "certifications"
+                                min = "0"
+                                placeholder = "Number of certifications"
+                                required>
+                        </div>
+
+                        <!-- Aptitude -->
+                        <div class = "form-group">
+                            <label for = "aptitude">Aptitude</label>
+                            <input
+                                type = "number"
+                                id = "aptitude"
+                                name = "aptitude"
+                                step = "0.01"
+                                min = "0"
+                                max = "10"
+                                placeholder = "Score out of 10"
+                                required>
+                        </div>
+
+                        <!-- Interview Score -->
+                        <div class = "form-group">
+                            <label for = "interview_score">Interview Score</label>
+                            <input
+                                type = "number"
+                                id = "interview_score"
+                                name = "interview_score"
+                                step = "0.01"
+                                min = "0"
+                                max = "10"
+                                placeholder = "Score out of 10"
+                                required>
+                        </div>
+                    </div>
+
+                    <button type = "submit">Predict Placement</button>
+                </form>
+
+                <!-- Prediction Result -->
+                {% if prediction %}
+                    <div class = "result {% if prediction == 'Placed' %}success{% else %}danger{% endif %}">
+                        <h2>Prediction Result</h2>
+                        <p>Student is predicted to be:</p>
+                        <strong>{{ prediction }}</strong>
+                    </div>
+                {% endif %}
+
+                <!-- Error -->
+                {% if error %}
+                    <div class = "result danger">
+                        <h2>Error</h2>
+                        <p>{{ error }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </body>
+</html>
