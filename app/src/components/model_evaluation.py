@@ -8,12 +8,31 @@ from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_sc
 
 from app.src.utils.logger import logging
 from app.src.utils.exception import MyException
+from app.src.constants import (ARTIFACT_DIR,
+                               TARGET_COLUMN,
+                               DATA_TRANSFORMATION_DIR_NAME,
+                               DATA_TRANSFORMATION_TEST_FILE_NAME,
+                               MODEL_TRAINER_DIR_NAME,
+                               MODEL_TRAINER_TRAINED_MODEL_NAME,
+                               MODEL_EVALUATION_DIR_NAME,
+                               MODEL_EVALUATION_METRICS_NAME,
+                               MODEL_EVALUATION_METRICS_FILE_NAME)
 
 class ModelEvaluation:
+    def __init__(self):
+        try:
+            self.test_file_path = os.path.join(ARTIFACT_DIR, DATA_TRANSFORMATION_DIR_NAME, DATA_TRANSFORMATION_TEST_FILE_NAME)
+            self.model_path = os.path.join(ARTIFACT_DIR, MODEL_TRAINER_DIR_NAME, MODEL_TRAINER_TRAINED_MODEL_NAME)
+            self.metrics_path = os.path.join(MODEL_EVALUATION_DIR_NAME, MODEL_EVALUATION_METRICS_NAME, MODEL_EVALUATION_METRICS_FILE_NAME)
+
+        except Exception as e:
+            raise MyException(e, sys)
+        
     def load_data(self, file_path: str):
         try:
+            df = pd.read_csv(file_path)
             logging.info("Data loaded successfully")
-            return pd.read_csv(file_path)
+            return df
 
         except Exception as e:
             raise MyException(e, sys)
@@ -33,10 +52,10 @@ class ModelEvaluation:
             logging.info("Predict model on test data")
             y_pred = model.predict(x_test)
 
-            accuracy = accuracy_score(y_test, y_pred)
-            precision = precision_score(y_test, y_pred)
-            recall = recall_score(y_test, y_pred)
-            f1 = f1_score(y_test, y_pred)
+            accuracy = round(accuracy_score(y_test, y_pred), 4)
+            precision = round(precision_score(y_test, y_pred), 4)
+            recall = round(recall_score(y_test, y_pred), 4)
+            f1 = round(f1_score(y_test, y_pred), 4)
 
             logging.info(f"Accuracy Score: {accuracy}")
             logging.info(f"Precision Score: {precision}")
@@ -72,28 +91,23 @@ class ModelEvaluation:
             logging.info("Model Evaluation Started.")
 
             # Load Data
-            test_data = self.load_data(file_path = "./data/processed/test_processed.csv")
+            test_data = self.load_data(file_path = self.test_file_path)
             logging.info("Data load successfully")
 
-            column_name = "placement_status"
-            x_test = test_data.drop(columns = column_name)
-            y_test = test_data[column_name]
+            x_test = test_data.drop(columns = TARGET_COLUMN)
+            y_test = test_data[TARGET_COLUMN]
 
             # Load Model
-            model = self.load_model(model_path = "./model/model.pkl")
+            model = self.load_model(model_path = self.model_path)
             logging.info("Model Load successfully")
 
             # Model Predict
             metrics = self.predict_model(model = model, x_test = x_test, y_test = y_test)
 
             # Save metrics performance
-            self.save_model_performance(metrics = metrics, metrics_path = "./reports/metrics/metric.json")
+            self.save_model_performance(metrics = metrics, metrics_path = self.metrics_path)
             logging.info("Model Performance saved")
             logging.info("Model Evaluation completed successfully.")
 
         except Exception as e:
             raise MyException(e, sys)
-
-if __name__ == "__main__":
-    obj = ModelEvaluation()
-    obj.main()

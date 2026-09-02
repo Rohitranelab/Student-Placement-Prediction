@@ -1,38 +1,48 @@
 import os
 import sys
 import pandas as pd
+
 from sklearn.model_selection import train_test_split
 
 from app.src.utils.logger import logging
 from app.src.utils.exception import MyException
+from app.src.constants import (DATA_PATH, ARTIFACT_DIR,
+                           DATA_INGESTION_DIR_NAME, 
+                           DATA_INGESTION_TRAIN_AND_TEST_SPLIT_RATIO,
+                           DATA_INGESTION_TRAIN_FILE_NAME,
+                           DATA_INGESTION_TEST_FILE_NAME,
+                           DATA_INGESTION_RANDOM_STATE)
 
 class DataIngestion:
     def load_data(self, file_path: str):
         try:
             df = pd.read_csv(file_path)
-            logging.info("Load data successfully")
+            logging.info("Data loaded successfully")
             return df
 
         except Exception as e:
             raise MyException(e, sys)
 
-    def remove_column(self, df: pd.DataFrame, column_name: list):
+    def split_data(self, df: pd.DataFrame):
         try:
-            remove_df_columns = [col for col in column_name if col in df.columns]
-            df.drop(columns = remove_df_columns, axis = 1, inplace = True)
-            logging.info(f"Removed columns: {remove_df_columns}")
-            return df
-
+            logging.info("Start splitting data into train and test set")
+            train_data, test_data = train_test_split(df, 
+                                                     test_size = DATA_INGESTION_TRAIN_AND_TEST_SPLIT_RATIO, 
+                                                     random_state = DATA_INGESTION_RANDOM_STATE)
+            logging.info(f"Training data shape: {train_data.shape}")
+            logging.info(f"Testing data shape: {test_data.shape}")
+            return train_data, test_data
+        
         except Exception as e:
             raise MyException(e, sys)
 
     def save_data(self, train_data: pd.DataFrame, test_data: pd.DataFrame, data_path: str):
         try:
-            raw_data = os.path.join(data_path, "raw")
+            raw_data = os.path.join(data_path, DATA_INGESTION_DIR_NAME)
             os.makedirs(raw_data, exist_ok = True)
 
-            train_path = os.path.join(raw_data, "train.csv")
-            test_path = os.path.join(raw_data, "test.csv")
+            train_path = os.path.join(raw_data, DATA_INGESTION_TRAIN_FILE_NAME)
+            test_path = os.path.join(raw_data, DATA_INGESTION_TEST_FILE_NAME)
 
             train_data.to_csv(train_path, index = False)
             test_data.to_csv(test_path, index = False)
@@ -46,30 +56,19 @@ class DataIngestion:
     def main(self):
         try:
             logging.info("Data Ingestion Started.")
-            data_url = ("https://raw.githubusercontent.com/Rohitranelab/dataset/refs/heads/main/student_placement.csv")
-
+            
             # Load Data
-            df = self.load_data(file_path = data_url)
+            df = self.load_data(file_path = DATA_PATH)
             logging.info("Data loaded successfully")
             logging.info(f"Data shape: {df.shape}")
 
-            # Remove Columns
-            column_name = ["package_range"]
-            df = self.remove_column(df, column_name)
-            logging.info(f"Dataset shape after removing columns: {df.shape}")
-
             # Train-Test Split
-            train_data, test_data = train_test_split(df, test_size = 0.3, random_state = 42)
-            logging.info(f"Train data shape: {train_data.shape}")
-            logging.info(f"Test data shape: {test_data.shape}")
+            train_data, test_data = self.split_data(df)
+            logging.info("Complete split data into train and test set")
 
             # Save Data
-            self.save_data(train_data = train_data, test_data = test_data, data_path = "./data")
+            self.save_data(train_data = train_data, test_data = test_data, data_path = ARTIFACT_DIR)
             logging.info("Data Ingestion completed successfully.")
 
         except Exception as e:
             raise MyException(e, sys)
-
-if __name__ == "__main__":
-    obj = DataIngestion()
-    obj.main()

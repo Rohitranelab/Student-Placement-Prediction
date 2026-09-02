@@ -7,12 +7,28 @@ from sklearn.linear_model import LogisticRegression
 
 from app.src.utils.exception import MyException
 from app.src.utils.logger import logging
+from app.src.constants import (ARTIFACT_DIR,
+                               DATA_TRANSFORMATION_DIR_NAME,
+                               DATA_TRANSFORMATION_TRAIN_FILE_NAME,
+                               MODEL_TRAINER_DIR_NAME,
+                               MODEL_TRAINER_TRAINED_MODEL_NAME,
+                               MODEL_TRAINER_MAX_ITER,
+                               MODEL_TRAINER_RANDOM_STATE)
 
 class ModelBuilding:
+    def __init__(self):
+        try:
+            self.train_file_path = os.path.join(ARTIFACT_DIR, DATA_TRANSFORMATION_DIR_NAME, DATA_TRANSFORMATION_TRAIN_FILE_NAME)
+            self.model_path = os.path.join(ARTIFACT_DIR, MODEL_TRAINER_DIR_NAME, MODEL_TRAINER_TRAINED_MODEL_NAME)
+
+        except Exception as e:
+            raise MyException(e, sys)
+        
     def load_data(self, file_path: str):
         try:
+            df = pd.read_csv(file_path)
             logging.info("Data loaded successfully")
-            return pd.read_csv(file_path)
+            return df
 
         except Exception as e:
             raise MyException(e, sys)
@@ -20,7 +36,7 @@ class ModelBuilding:
     def logistic_regression_model(self, x_train: pd.DataFrame, y_train: pd.DataFrame):
         try:
             logging.info("Creating Logistic Regression Model")
-            model = LogisticRegression(max_iter = 2000, random_state = 42)
+            model = LogisticRegression(max_iter = MODEL_TRAINER_MAX_ITER, random_state = MODEL_TRAINER_RANDOM_STATE)
             model.fit(x_train, y_train)
             logging.info("Model training completed")
             return model
@@ -46,8 +62,8 @@ class ModelBuilding:
             logging.info("Model Building started.")
 
             # Load Data
-            train_data = self.load_data(file_path = "./data/processed/train_processed.csv")
-            logging.info("Data loaded successfully")
+            train_data = self.load_data(file_path = self.train_file_path)
+            logging.info("Training Data loaded successfully")
 
             column_name = "placement_status"
             x_train = train_data.drop(columns = column_name)
@@ -58,13 +74,9 @@ class ModelBuilding:
             logging.info("Training complete")
 
             # Save model
-            self.save_model(model = model, model_path = "./model/model.pkl")
+            self.save_model(model = model, model_path = self.model_path)
             logging.info("Model saved successfully")
             logging.info("Model Building completed successfully.")
 
         except Exception as e:
             raise MyException(e, sys)
-
-if __name__ == "__main__":
-    obj = ModelBuilding()
-    obj.main()

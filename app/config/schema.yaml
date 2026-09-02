@@ -1,0 +1,38 @@
+columns:
+  - cgpa: float
+  - projects: int
+  - communication_skills: float
+  - internship: int
+  - programming_skills: float
+  - technical_skills: float
+  - certifications: int
+  - aptitude: float
+  - interview_score: float
+  - placement_status: int
+  - package_range: object
+
+numerical_columns:
+  - cgpa
+  - projects
+  - communication_skills
+  - internship
+  - programming_skills
+  - technical_skills
+  - certifications
+  - aptitude
+  - interview_score
+  - placement_status
+
+categorical_columns:
+  - package_range
+
+num_features:
+  - cgpa
+  - projects
+  - communication_skills
+  - internship
+  - programming_skills
+  - technical_skills
+  - certifications
+  - aptitude
+  - interview_score
